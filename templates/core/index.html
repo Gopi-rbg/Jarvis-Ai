@@ -1,0 +1,154 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jarvis - AI Voice Assistant</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Navigation -->
+        <nav class="navbar">
+            <div class="nav-container">
+                <div class="logo">
+                    <i class="fas fa-robot"></i>
+                    <span>JARVIS</span>
+                </div>
+                <ul class="nav-menu">
+                    <li><a href="#" class="nav-link">Home</a></li>
+                    <li><a href="#" class="nav-link" id="historyBtn">History</a></li>
+                    <li><a href="#" class="nav-link" id="settingsBtn">Settings</a></li>
+                    <li><a href="#" class="nav-link logout-btn">Logout</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Jarvis Dashboard -->
+            <div class="dashboard-section active" id="dashboardSection">
+                <div class="dashboard-container">
+                    <!-- Status Bar -->
+                    <div class="status-bar">
+                        <div class="status-item">
+                            <span class="status-label">Status:</span>
+                            <span class="status-value" id="statusValue">Ready</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">Time:</span>
+                            <span class="status-value" id="timeValue">--:--</span>
+                        </div>
+                    </div>
+
+                    <!-- Main Jarvis Interface -->
+                    <div class="jarvis-interface">
+                        <!-- Animated Background -->
+                        <div class="animated-bg">
+                            <div class="sphere" id="animatedSphere"></div>
+                        </div>
+
+                        <!-- Chat Display Area -->
+                        <div class="chat-container">
+                            <div class="chat-messages" id="chatMessages">
+                                <div class="welcome-message">
+                                    <h2>Welcome to Jarvis</h2>
+                                    <p>Your AI Voice Assistant</p>
+                                    <p class="subtitle">Say "Jarvis" to activate, then give your command</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Listening Indicator -->
+                        <div class="listening-indicator" id="listeningIndicator">
+                            <div class="pulse"></div>
+                            <div class="pulse"></div>
+                            <div class="pulse"></div>
+                            <p>Listening...</p>
+                        </div>
+
+                        <!-- Microphone Control -->
+                        <div class="control-center">
+                            <button class="mic-button" id="micButton" title="Click to speak (or say 'Jarvis')">
+                                <i class="fas fa-microphone"></i>
+                                <span class="mic-text">Click to Speak</span>
+                            </button>
+
+                            <div class="control-buttons">
+                                <button class="control-btn" id="clearBtn" title="Clear Chat">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                                <button class="control-btn" id="settingsBtn2" title="Settings">
+                                    <i class="fas fa-cog"></i>
+                                </button>
+                                <button class="control-btn" id="volumeBtn" title="Toggle Volume">
+                                    <i class="fas fa-volume-up"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Volume Control -->
+                        <div class="volume-control" id="volumeControl">
+                            <input type="range" min="0" max="100" value="70" id="volumeSlider">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- History Section -->
+            <div class="history-section" id="historySection">
+                <div class="section-header">
+                    <h2>Conversation History</h2>
+                    <button class="btn-clear-all" id="clearAllBtn">Clear All</button>
+                </div>
+                <div class="history-container" id="historyContainer">
+                    <p class="loading">Loading conversations...</p>
+                </div>
+            </div>
+
+            <!-- Settings Section -->
+            <div class="settings-section" id="settingsSection">
+                <div class="section-header">
+                    <h2>Settings</h2>
+                </div>
+                <div class="settings-container">
+                    <div class="setting-item">
+                        <label for="wakeWordInput">Wake Word:</label>
+                        <input type="text" id="wakeWordInput" value="Jarvis" disabled>
+                    </div>
+                    <div class="setting-item">
+                        <label for="voiceSelect">Voice:</label>
+                        <select id="voiceSelect">
+                            <option value="female">Female</option>
+                            <option value="male">Male</option>
+                        </select>
+                    </div>
+                    <div class="setting-item">
+                        <label>
+                            <input type="checkbox" id="autoListenCheck" checked>
+                            Auto-listen for wake word
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <label>
+                            <input type="checkbox" id="darkModeCheck" checked>
+                            Dark Mode
+                        </label>
+                    </div>
+                    <button class="btn-save" id="saveSetting">Save Settings</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Hidden Audio Element -->
+    <audio id="audioPlayer" style="display: none;"></audio>
+
+    <script src="{% static 'js/speech-recognition.js' %}"></script>
+    <script src="{% static 'js/text-to-speech.js' %}"></script>
+    <script src="{% static 'js/app.js' %}"></script>
+    <script src="{% static 'js/ui.js' %}"></script>
+</body>
+</html>
