@@ -110,7 +110,13 @@ STATICFILES_DIRS = [
 ]
 
 # Use WhiteNoise for efficient static file serving
-MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
+# Note: Import MIDDLEWARE from settings.py first
+try:
+    MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
+except (NameError, AttributeError):
+    # If MIDDLEWARE not defined yet, it will be added in settings.py
+    pass
+
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # CDN Configuration (optional - uncomment if using CDN)
@@ -300,13 +306,17 @@ GEMINI_API_KEY = config('GEMINI_API_KEY', default='')
 # Query optimization
 DATABASE_QUERY_TIMEOUT = 30  # seconds
 
-# Cache templates
-TEMPLATES[0]['OPTIONS']['loaders'] = [
-    ('django.template.loaders.cached.Loader', [
-        'django.template.loaders.filesystem.Loader',
-        'django.template.loaders.app_directories.Loader',
-    ]),
-]
+# Cache templates (only if TEMPLATES is defined)
+if 'TEMPLATES' in globals():
+    try:
+        TEMPLATES[0]['OPTIONS']['loaders'] = [
+            ('django.template.loaders.cached.Loader', [
+                'django.template.loaders.filesystem.Loader',
+                'django.template.loaders.app_directories.Loader',
+            ]),
+        ]
+    except (IndexError, KeyError, TypeError):
+        pass  # TEMPLATES not properly configured, skip caching
 
 # ============================================
 # CELERY CONFIGURATION (Optional)
@@ -325,14 +335,19 @@ CELERY_TASK_TIME_LIMIT = 30 * 60  # 30 minutes
 # RATE LIMITING (Optional)
 # ============================================
 
-REST_FRAMEWORK['DEFAULT_THROTTLE_CLASSES'] = [
-    'rest_framework.throttling.AnonRateThrottle',
-    'rest_framework.throttling.UserRateThrottle',
-]
-
-REST_FRAMEWORK['DEFAULT_THROTTLE_RATES'] = {
-    'anon': '100/hour',
-    'user': '1000/hour',
+# Define REST_FRAMEWORK if not already defined
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+    ],
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle',
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '100/hour',
+        'user': '1000/hour',
+    }
 }
 
 print("✓ Production settings loaded")

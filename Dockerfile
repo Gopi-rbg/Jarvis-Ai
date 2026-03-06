@@ -3,25 +3,29 @@ FROM python:3.10-slim as builder
 
 WORKDIR /app
 
-# Install build dependencies
+# Install build dependencies (including portaudio for PyAudio)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     postgresql-client \
+    portaudio19-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements and install Python dependencies
-COPY requirements.txt .
-RUN pip install --user --no-cache-dir -r requirements.txt
+# For web deployment, use requirements-web.txt (excludes desktop/audio dependencies)
+# This avoids building PyAudio with portaudio headers
+COPY requirements-web.txt requirements.txt ./
+RUN pip install --user --no-cache-dir -r requirements-web.txt
 
 # Final stage
 FROM python:3.10-slim
 
 WORKDIR /app
 
-# Install runtime dependencies only
+# Install runtime dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     postgresql-client \
     curl \
+    libportaudio2 \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy Python dependencies from builder
