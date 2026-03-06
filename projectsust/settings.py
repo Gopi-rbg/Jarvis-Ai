@@ -19,13 +19,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
+from decouple import config
+
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-prr)ao6k-v^7h&njy+q23^2-dg_ce_^-p2cx(!o2l=vc%l2(v7'
+SECRET_KEY = config('SECRET_KEY', default='django-insecure-prr)ao6k-v^7h&njy+q23^2-dg_ce_^-p2cx(!o2l=vc%l2(v7')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config('DEBUG', default=True, cast=bool)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1', 
+                      cast=lambda v: [s.strip() for s in v.split(',')])
 
 
 # Application definition
@@ -146,3 +149,10 @@ JARVIS_CONFIG = {
     'OPENAI_API_KEY': 'your-openai-api-key',  # Replace with your API key
     'WAKE_WORD': 'jarvis',
 }
+
+# Import production settings if not in debug mode
+if not DEBUG:
+    try:
+        from .settings_production import *  # noqa: F401, F403
+    except ImportError:
+        pass  # Production settings file not found, using defaults
