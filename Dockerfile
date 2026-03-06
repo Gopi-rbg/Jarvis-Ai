@@ -14,7 +14,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # For web deployment, use requirements-web.txt (excludes desktop/audio dependencies)
 # This avoids building PyAudio with portaudio headers
 COPY requirements-web.txt requirements.txt ./
-RUN pip install --user --no-cache-dir -r requirements-web.txt
+RUN pip install --no-cache-dir -r requirements-web.txt
 
 # Final stage
 FROM python:3.10-slim
@@ -28,16 +28,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libportaudio2 \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy Python dependencies from builder
-COPY --from=builder /root/.local /root/.local
-
-# Set PATH to use local pip installations
-ENV PATH=/root/.local/bin:$PATH
+# Copy Python dependencies from builder (entire Python environment)
+COPY --from=builder /usr/local/lib/python3.10/site-packages /usr/local/lib/python3.10/site-packages
+COPY --from=builder /usr/local/bin /usr/local/bin
 
 # Copy project files
 COPY . .
 
-# Create non-root user for security
+# Create non-root user for security (but run admin tasks as root first)
 RUN useradd -m -u 1000 appuser && \
     chown -R appuser:appuser /app
 
@@ -45,11 +43,11 @@ RUN useradd -m -u 1000 appuser && \
 RUN mkdir -p /app/staticfiles /app/media /app/logs && \
     chown -R appuser:appuser /app/staticfiles /app/media /app/logs
 
+# Collect static files (must be done as root before switching user)
+RUN python manage.py collectstatic --noinput --clear
+
 # Switch to non-root user
 USER appuser
-
-# Collect static files
-RUN python manage.py collectstatic --noinput --clear
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
